@@ -1,0 +1,239 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "statefulset.name" . }}
+  labels:
+    dolphindb.io/component: dolphindb-singleton-cluster
+    app.kubernetes.io/name: {{ include "statefulset.name" . }}
+spec:
+  replicas: 1
+  podManagementPolicy: OrderedReady
+  selector:
+    matchLabels:
+      dolphindb.io/component: dolphindb-singleton-cluster
+      app.kubernetes.io/name: {{ include "statefulset.name" . }}
+  serviceName: {{ include "statefulset.name" . }}
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+  template:
+    metadata:
+      name: {{ include "statefulset.name" . }}
+      labels:
+        dolphindb.io/component: dolphindb-singleton-cluster
+        app.kubernetes.io/name: {{ include "statefulset.name" . }}
+    spec:
+      restartPolicy: Always
+      serviceAccountName: {{ include "global.serviceaccount.name" . }}
+      volumes:
+      - name: license
+        configMap:
+          name: dolphindb-license
+          items:
+            - key: dolphindb.lic
+              path: dolphindb.lic
+          defaultMode: 420
+      - name: controller-config
+        configMap:
+          name: controller-config
+          items:
+            - key: controller.cfg
+              path: controller.cfg
+      - name: cluster-nodes
+        configMap:
+          name: controller-config
+          items:
+            - key: cluster.nodes
+              path: cluster.nodes
+      - name: cluster-config
+        configMap:
+          name: controller-config
+          items:
+            - key: cluster.cfg
+              path: cluster.cfg
+      - name: localtime
+        hostPath:
+          path: /etc/localtime
+          type: ''
+      - name: controller-log
+        persistentVolumeClaim:
+          claimName: controller-log
+      - name: controller-data
+        persistentVolumeClaim:
+          claimName: controller-data
+      - name: controller-core
+        persistentVolumeClaim:
+          claimName: controller-core
+      {{ range $i := until (int .Values.global.agentNum) -}}
+      - name: agent{{ $i }}-cfg
+        configMap:
+          name: agent-config
+          items:
+            - key: agent{{ $i }}.cfg
+              path: agent{{ $i }}.cfg
+      - name: agent-log-{{ $i }}
+        persistentVolumeClaim:
+          claimName: agent-log-{{ $i }}
+      - name: agent-data-{{ $i }}
+        persistentVolumeClaim:
+          claimName: agent-data-{{ $i }}
+      - name: agent-core-{{ $i }}
+        persistentVolumeClaim:
+          claimName: agent-core-{{ $i }}
+      {{ end -}}
+      containers:
+      {{ $imageTag := ( include "imageTag" . ) -}}
+      {{ $cleanerTag := .Values.global.cleanerTag -}}
+      - name: ddb-controller
+        image: {{ $imageTag }}
+        command:
+        - /bin/sh
+        - '-c'
+        - '--'
+        args:
+        - >-
+          ulimit -c unlimited; cd /data/ddb/server; export LD_LIBRARY_PATH=$PWD:$LD_LIBRARY_PATH;
+          ./dolphindb -console 0 -mode controller -home data -script dolphindb.dos -maxLogSize 200 -stdoutLog 0
+          -config /data/ddb/server/clusterDemo/config/controller.cfg -logFile /data/ddb/server/clusterDemo/log/controller.log 
+          -nodesFile /data/ddb/server/clusterDemo/config/cluster.nodes -clusterConfig /data/ddb/server/clusterDemo/config/cluster.cfg
+        ports:
+        - name: controller
+          containerPort: {{ .Values.controller.port }}
+          protocol: TCP
+        resources:
+        {{- toYaml .Values.controller.resources | nindent 10 }}
+        volumeMounts:
+        - name: license
+          subPath: dolphindb.lic
+          mountPath: /data/ddb/server/dolphindb.lic
+        - name: controller-config
+          subPath: controller.cfg
+          mountPath: /data/ddb/server/clusterDemo/config/controller.cfg
+        - name: controller-log
+          mountPath: /data/ddb/server/clusterDemo/log
+        - name: cluster-nodes
+          subPath: cluster.nodes
+          mountPath: /data/ddb/server/clusterDemo/config/cluster.nodes
+        - name: cluster-config
+          subPath: cluster.cfg
+          mountPath: /data/ddb/server/clusterDemo/config/cluster.cfg
+        - name: controller-data
+          mountPath: /data/ddb/server/data
+        - name: controller-core
+          mountPath: /data/ddb/core
+        - name: localtime
+          mountPath: /etc/localtime
+      - name: exporter
+        image: dolphindb/dolphindb-exporter:{{ .Values.global.exporterTag }}
+        ports:
+        - name: exporter
+          containerPort: 9090
+          protocol: TCP
+        env:
+        - name: DolphinDBPort
+          value: {{ $imageTag | quote }}
+        volumeMounts:
+        - name: localtime
+          mountPath: /etc/localtime
+      - name: controller-cleaner
+        image: dolphindb/dolphindb-cleaner:{{ $cleanerTag }}
+        env:
+        - name: LogSize
+          value: '1073741824'
+        - name: LogDir
+          value: /data/ddb/server/clusterDemo/log
+        - name: CoreDumpDir
+          value: /data/ddb/core
+        - name: CleanMode
+          value: All
+        - name: LogLimit
+          value: {{ .Values.controller.logLimit | quote}}
+        - name: PodName
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: Namespace
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        volumeMounts:
+        - name: controller-core
+          mountPath: /data/ddb/core
+        - name: controller-log
+          mountPath: /data/ddb/server/clusterDemo/log
+        - name: localtime
+          mountPath: /etc/localtime
+      {{ $agentPort := .Values.agentNode.port -}}
+      {{ $datanodePort := .Values.agentNode.datanodePort -}}
+      {{ $logLimit := .Values.controller.logLimit -}}
+      {{ $resource_limit := toYaml .Values.agentNode.resources | nindent 10 -}}
+      {{ range $i := until (int .Values.global.agentNum) -}}
+      - name: ddb-agent-{{ $i }}
+        image: {{ $imageTag }}
+        command:
+        - /bin/sh
+        - '-c'
+        - '--'
+        args:
+        - >-
+          ulimit -c unlimited; cd /data/ddb/server; export LD_LIBRARY_PATH=$PWD:$LD_LIBRARY_PATH;
+          ./dolphindb -console 0 -mode agent -home /data/ddb/server/data -script dolphindb.dos
+          -config /data/ddb/server/config/agent.cfg -logFile /data/ddb/server/log/agent.log
+        resources:
+        {{- $resource_limit }}
+        ports:
+        - name: agent
+          containerPort: {{ add $agentPort ( mul $i 10 ) }}
+          protocol: TCP
+        - name: datanode
+          containerPort: {{ add $datanodePort ( mul $i 10 ) }}
+          protocol: TCP
+        volumeMounts:
+        - name: license
+          mountPath: /data/ddb/server/dolphindb.lic
+          subPath: dolphindb.lic
+        - name: localtime
+          mountPath: /etc/localtime
+        - name: agent-data-{{ $i }}
+          mountPath: /data/ddb/server/data
+        - name: agent-log-{{ $i }}
+          mountPath: /data/ddb/server/log
+        - name: agent{{ $i }}-cfg
+          mountPath: /data/ddb/server/config/agent.cfg
+        - name: agent-core-{{ $i }}
+          mountPath: /data/ddb/core
+      - name: agent-cleaner-{{ $i }}
+        image: dolphindb/dolphindb-cleaner:{{ $cleanerTag }}
+        env:
+        - name: LogSize
+          value: '1073741824'
+        - name: LogDir
+          value: /data/ddb/server/log
+        - name: CoreDumpDir
+          value: /data/ddb/core
+        - name: CleanMode
+          value: All
+        - name: LogLimit
+          value: {{ $logLimit | quote}}
+        - name: PodName
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: Namespace
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        volumeMounts:
+        - name: agent-core-{{ $i }}
+          mountPath: /data/ddb/core
+        - name: agent-log-{{ $i }}
+          mountPath: /data/ddb/server/log
+        - name: localtime
+          mountPath: /etc/localtime
+      {{ end -}}
+      affinity:
+      {{- toYaml .Values.global.affinity | nindent 8 }}

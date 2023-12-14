@@ -1,0 +1,89 @@
+{{ $storageClass := .Values.global.storageClass -}}
+{{ $ns := .Release.Namespace -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: controller-log
+  namespace: {{ $ns }}
+  dolphindb.io/component.type: Controller
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ $storageClass }}
+  resources:
+    requests:
+      storage: {{ .Values.controller.logSize }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: controller-data
+  namespace: {{ $ns }}
+  dolphindb.io/component.type: Controller
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ $storageClass }}
+  resources:
+    requests:
+      storage: {{ .Values.controller.dataSize }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: controller-core
+  namespace: {{ $ns }}
+  dolphindb.io/component.type: Controller
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ $storageClass }}
+  resources:
+    requests:
+      storage: {{ .Values.controller.logSize }}
+{{ $dataSize := .Values.agentNode.dataSize -}}
+{{ $logSize := .Values.agentNode.logSize -}}
+{{ range $i := until (int .Values.global.agentNum) -}}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: agent-data-{{ $i }}
+  namespace: {{ $ns }}
+  dolphindb.io/component.type: Agent
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ $storageClass }}
+  resources:
+    requests:
+      storage: {{ $dataSize }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: agent-log-{{ $i }}
+  namespace: {{ $ns }}
+  dolphindb.io/component.type: Agent
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ $storageClass }}
+  resources:
+    requests:
+      storage: {{ $logSize }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: agent-core-{{ $i }}
+  namespace: {{ $ns }}
+  dolphindb.io/component.type: Agent
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ $storageClass }}
+  resources:
+    requests:
+      storage: {{ $logSize }}
+{{ end -}}

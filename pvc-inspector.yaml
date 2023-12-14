@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pvc-inspector
+spec:
+  containers:
+  - image: busybox
+    name: pvc-inspector
+    command: ["tail"]
+    args: ["-f", "/dev/null"]
+    volumeMounts:
+    - mountPath: /pvc/log
+      name: pvc-log
+    - mountPath: /pvc/data
+      name: pvc-data
+    - mountPath: /pvc/core
+      name: pvc-core
+  volumes:
+  - name: pvc-log
+    persistentVolumeClaim:
+      claimName: agent-log-1
+  - name: pvc-core
+    persistentVolumeClaim:
+      claimName: agent-core-1
+  - name: pvc-data
+    persistentVolumeClaim:
+      claimName: agent-data-1

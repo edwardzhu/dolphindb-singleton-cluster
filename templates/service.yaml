@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "statefulset.name" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    dolphindb.io/component.type: controller
+    dolphindb.io/dolphindb.version: {{ .Values.dolphindb.imageTags }}
+spec:
+  type: {{ include "controller.serviceType" . }}
+  selector:
+    dolphindb.io/component: dolphindb-singleton-cluster
+  ports:
+  - name: controller
+    protocol: TCP
+    port: 31210

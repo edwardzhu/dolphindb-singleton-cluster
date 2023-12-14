@@ -1,0 +1,56 @@
+global:
+  registry: ""
+  repository: "dolphindb"
+  storageClass: ""
+  allNamespace: false
+  serviceType: NodePort
+  serviceName: ""
+  agentNum: 2
+  datanodeRestartInterval: 30
+  cleanerTag: v1.1.2
+  exporterTag: v1.1.2
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 1
+          preference:
+            matchExpressions:
+              - key: dolphindb.io/pod
+                operator: In
+                values:
+                  - dolphindb
+
+license:
+  content: ""
+
+dolphindb:
+  imageTags: "v2.00.10.8"
+
+controller:
+  port: 31210
+  logSize: 1Gi
+  dataSize: 1Gi
+  logLimit: 0.9
+  serviceType: ""
+  resources:
+    limits:
+      cpu: 0.2
+      memory: 1Gi
+    requests:
+      cpu: '0'
+      memory: '0'
+
+agentNode:
+  replica: 0
+  port: 31220
+  datanodePort: 31221
+  dataSize: 1Gi
+  logSize: 1Gi
+  serviceType: ""
+  resources:
+    limits:
+      cpu: 1
+      memory: 1Gi
+    requests:
+      cpu: '0'
+      memory: '0'

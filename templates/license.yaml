@@ -1,0 +1,8 @@
+{{- if .Values.license.content -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dolphindb-license
+data:
+  dolphindb.lic: {{ .Values.license.content | quote }}
+{{- end -}}

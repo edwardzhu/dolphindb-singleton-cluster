@@ -1,0 +1,9 @@
+apiVersion: v2
+name: dolphindb-singleton-cluster
+version: v0.1.0-beta
+appVersion: v0.1.0-beta
+description: "Build a dolphindb cluster into a single pod."
+type: application
+keywords:
+  - "dolphindb"
+  - "cluster"

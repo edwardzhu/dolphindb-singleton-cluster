@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    dolphindb.io/component.config: controller-config
+  name: controller-config
+data:
+  {{ $controller_workerNum := ( include "controller.workerNum" . ) -}}
+  {{ $controller_maxMemSize := .Values.controller.resources.limits.memory -}}
+  {{ $agentPort := .Values.agentNode.port -}}
+  {{ $controllerPort := .Values.controller.port -}}
+  controller.cfg: |-
+    localSite=ddb-controller:{{ $.Values.controller.port }}:controller0
+    webWorkerNum={{ $controller_workerNum }}
+    workerNum={{ $controller_workerNum }}
+    maxMemSize={{ $controller_maxMemSize }}
+    dataSync=1
+    lanCluster=0
+    perfMonitoring=1
+    dfsMetaDir=/data/ddb/server/log
+    datanodeRestartInterval= {{- .Values.global.datanodeRestartInterval }}
+  cluster.cfg: |-
+    workerNum={{ $controller_workerNum }}
+    maxMemSize={{ $controller_maxMemSize }}
+    dataSync=1
+    lanCluster=0
+  cluster.nodes: |-
+    localSite,mode
+    ddb-controller:{{ .Values.controller.port }}:controller0,controller
+    {{- $datanodePort := .Values.agentNode.datanodePort -}}
+    {{ range $i := until (int .Values.global.agentNum) }}
+    ddb-agent-{{ $i }}:{{ add $agentPort ( mul $i 10 ) }}:agent{{ $i }},agent
+    ddb-datanode-{{ $i }}:{{ add $datanodePort ( mul $i 10 ) }}:datanode{{ $i }},datanode
+    {{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    dolphindb.io/component.config: agent-config
+  name: agent-config
+data:
+  {{ $agentCpu := .Values.agentNode.resources.limits.cpu -}}
+  {{ $agentMem := .Values.agentNode.resources.limits.memory -}}
+  {{ range $i := until (int .Values.global.agentNum ) -}}
+  agent{{ $i }}.cfg: |-
+    mode=agent
+    localSite=ddb-agent-{{ $i }}:{{ add $agentPort ( mul $i 10 ) }}:agent{{ $i }}
+    controllerSite=ddb-controller:{{ $controllerPort }}:controller0
+    maxMemSize={{ $agentMem }}
+    webWorkerNum={{ $agentCpu }}
+    workerNum={{ $agentCpu }}
+    dataSync=1
+    lanCluster=0
+    perfMonitoring=1
+    dfsMetaDir=/data/ddb/server/log
+  {{ end }}
