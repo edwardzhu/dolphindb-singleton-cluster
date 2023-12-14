@@ -201,6 +201,7 @@ spec:
         - name: agent-log-{{ $i }}
           mountPath: /data/ddb/server/log
         - name: agent{{ $i }}-cfg
+          subPath: agent{{ $i }}.cfg
           mountPath: /data/ddb/server/config/agent.cfg
         - name: agent-core-{{ $i }}
           mountPath: /data/ddb/core
