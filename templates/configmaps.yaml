@@ -8,9 +8,10 @@ data:
   {{ $controller_workerNum := ( include "controller.workerNum" . ) -}}
   {{ $controller_maxMemSize := .Values.controller.resources.limits.memory -}}
   {{ $agentPort := .Values.agentNode.port -}}
+  {{ $serviceName := ( include "statefulset.name" . )}}
   {{ $controllerPort := .Values.controller.port -}}
   controller.cfg: |-
-    localSite=ddb-controller:{{ $.Values.controller.port }}:controller0
+    localSite={{ $serviceName }}:{{ $.Values.controller.port }}:controller0
     webWorkerNum={{ $controller_workerNum }}
     workerNum={{ $controller_workerNum }}
     maxMemSize={{ $controller_maxMemSize }}
@@ -24,13 +25,14 @@ data:
     maxMemSize={{ $controller_maxMemSize }}
     dataSync=1
     lanCluster=0
+    chunkCacheEngineMemSize= {{- .Values.global.chunkCacheEngineMemSize }}
   cluster.nodes: |-
     localSite,mode
-    ddb-controller:{{ .Values.controller.port }}:controller0,controller
+    {{ $serviceName }}:{{ .Values.controller.port }}:controller0,controller
     {{- $datanodePort := .Values.agentNode.datanodePort -}}
     {{ range $i := until (int .Values.global.agentNum) }}
-    ddb-agent-{{ $i }}:{{ add $agentPort ( mul $i 10 ) }}:agent{{ $i }},agent
-    ddb-datanode-{{ $i }}:{{ add $datanodePort ( mul $i 10 ) }}:datanode{{ $i }},datanode
+    {{ $serviceName }}:{{ add $agentPort ( mul $i 10 ) }}:agent{{ $i }},agent
+    {{ $serviceName }}:{{ add $datanodePort ( mul $i 10 ) }}:datanode{{ $i }},datanode
     {{- end }}
 ---
 apiVersion: v1
@@ -45,12 +47,11 @@ data:
   {{ range $i := until (int .Values.global.agentNum ) -}}
   agent{{ $i }}.cfg: |-
     mode=agent
-    localSite=ddb-agent-{{ $i }}:{{ add $agentPort ( mul $i 10 ) }}:agent{{ $i }}
-    controllerSite=ddb-controller:{{ $controllerPort }}:controller0
+    localSite={{ $serviceName }}:{{ add $agentPort ( mul $i 10 ) }}:agent{{ $i }}
+    controllerSite={{ $serviceName }}:{{ $controllerPort }}:controller0
     maxMemSize={{ $agentMem }}
     webWorkerNum={{ $agentCpu }}
     workerNum={{ $agentCpu }}
-    dataSync=1
     lanCluster=0
     perfMonitoring=1
     dfsMetaDir=/data/ddb/server/log

@@ -14,3 +14,13 @@ spec:
   - name: controller
     protocol: TCP
     port: 31210
+  {{- $datanodePort := .Values.agentNode.datanodePort -}}
+  {{- $agentPort := .Values.agentNode.port -}}
+  {{ range $i := until (int .Values.global.agentNum) }}
+  - name: datanode-{{ $i }}
+    protocol: TCP
+    port: {{ add $datanodePort ( mul $i 10 ) }}
+  - name: agent-{{ $i }}
+    protocol: TCP
+    port: {{ add $agentPort ( mul $i 10 ) }}
+  {{- end }}

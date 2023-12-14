@@ -7,6 +7,7 @@ global:
   serviceName: ""
   agentNum: 2
   datanodeRestartInterval: 30
+  chunkCacheEngineMemSize: 0
   cleanerTag: v1.1.2
   exporterTag: v1.1.2
   affinity:
@@ -32,6 +33,7 @@ controller:
   dataSize: 1Gi
   logLimit: 0.9
   serviceType: ""
+  storageClass: ""
   resources:
     limits:
       cpu: 0.2
@@ -47,6 +49,7 @@ agentNode:
   dataSize: 1Gi
   logSize: 1Gi
   serviceType: ""
+  storageClass: ""
   resources:
     limits:
       cpu: 1
