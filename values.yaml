@@ -32,7 +32,6 @@ controller:
   logSize: 1Gi
   dataSize: 1Gi
   logLimit: 0.9
-  serviceType: ""
   storageClass: ""
   resources:
     limits:
@@ -48,7 +47,6 @@ agentNode:
   datanodePort: 31221
   dataSize: 1Gi
   logSize: 1Gi
-  serviceType: ""
   storageClass: ""
   resources:
     limits:
