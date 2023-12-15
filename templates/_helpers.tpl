@@ -20,9 +20,9 @@
 
 {{- define "statefulset.name" -}}
   {{ if .Values.global.serviceName }}
-  {{- printf "%s-%s" "dolphindb-singleton" ( include "work.namespace" . ) -}}
-  {{- else -}}
   {{- printf "%s" .Values.global.serviceName -}}
+  {{- else -}}
+  {{- printf "%s-%s" "dolphindb-singleton" ( include "work.namespace" . ) -}}
   {{- end -}}
 {{- end -}}
 
