@@ -165,10 +165,10 @@ spec:
           mountPath: /data/ddb/server/clusterDemo/log
         - name: localtime
           mountPath: /etc/localtime
-      {{ $agentPort := .Values.agentNode.port -}}
-      {{ $datanodePort := .Values.agentNode.datanodePort -}}
+      {{ $agentPort := .Values.agent.port -}}
+      {{ $datanodePort := .Values.agent.datanodePort -}}
       {{ $logLimit := .Values.controller.logLimit -}}
-      {{ $resource_limit := toYaml .Values.agentNode.resources | nindent 10 -}}
+      {{ $resource_limit := toYaml .Values.agent.resources | nindent 10 -}}
       {{ range $i := until (int .Values.global.agentNum) -}}
       - name: ddb-agent-{{ $i }}
         image: {{ $imageTag }}

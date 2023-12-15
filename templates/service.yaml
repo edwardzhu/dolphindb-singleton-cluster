@@ -14,8 +14,8 @@ spec:
   - name: controller
     protocol: TCP
     port: 31210
-  {{- $datanodePort := .Values.agentNode.datanodePort -}}
-  {{- $agentPort := .Values.agentNode.port -}}
+  {{- $datanodePort := .Values.agent.datanodePort -}}
+  {{- $agentPort := .Values.agent.port -}}
   {{ range $i := until (int .Values.global.agentNum) }}
   - name: datanode-{{ $i }}
     protocol: TCP

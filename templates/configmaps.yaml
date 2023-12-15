@@ -7,7 +7,7 @@ metadata:
 data:
   {{ $controller_workerNum := ( include "controller.workerNum" . ) -}}
   {{ $controller_maxMemSize := .Values.controller.resources.limits.memory -}}
-  {{ $agentPort := .Values.agentNode.port -}}
+  {{ $agentPort := .Values.agent.port -}}
   {{ $serviceName := ( include "statefulset.name" . )}}
   {{ $controllerPort := .Values.controller.port -}}
   controller.cfg: |-
@@ -29,7 +29,7 @@ data:
   cluster.nodes: |-
     localSite,mode
     {{ $serviceName }}:{{ .Values.controller.port }}:controller0,controller
-    {{- $datanodePort := .Values.agentNode.datanodePort -}}
+    {{- $datanodePort := .Values.agent.datanodePort -}}
     {{ range $i := until (int .Values.global.agentNum) }}
     {{ $serviceName }}:{{ add $agentPort ( mul $i 10 ) }}:agent{{ $i }},agent
     {{ $serviceName }}:{{ add $datanodePort ( mul $i 10 ) }}:datanode{{ $i }},datanode
@@ -42,8 +42,8 @@ metadata:
     dolphindb.io/component.config: agent-config
   name: agent-config
 data:
-  {{ $agentCpu := .Values.agentNode.resources.limits.cpu -}}
-  {{ $agentMem := .Values.agentNode.resources.limits.memory -}}
+  {{ $agentCpu := .Values.agent.resources.limits.cpu -}}
+  {{ $agentMem := .Values.agent.resources.limits.memory -}}
   {{ range $i := until (int .Values.global.agentNum ) -}}
   agent{{ $i }}.cfg: |-
     mode=agent

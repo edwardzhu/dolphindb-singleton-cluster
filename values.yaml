@@ -8,8 +8,8 @@ global:
   agentNum: 2
   datanodeRestartInterval: 30
   chunkCacheEngineMemSize: 0
-  cleanerTag: v1.1.2
-  exporterTag: v1.1.2
+  cleanerTag: v1.1.3
+  exporterTag: v1.1.3
   affinity:
     nodeAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
@@ -41,7 +41,7 @@ controller:
       cpu: '0'
       memory: '0'
 
-agentNode:
+agent:
   replica: 0
   port: 31220
   datanodePort: 31221

@@ -1,5 +1,5 @@
 {{ $controll_storageClass := .Values.controller.storageClass | default .Values.global.storageClass -}}
-{{ $agent_storageClass := .Values.agentNode.storageClass | default .Values.global.storageClass -}}
+{{ $agent_storageClass := .Values.agent.storageClass | default .Values.global.storageClass -}}
 {{ $ns := .Release.Namespace -}}
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -45,8 +45,8 @@ spec:
   resources:
     requests:
       storage: {{ .Values.controller.logSize }}
-{{ $dataSize := .Values.agentNode.dataSize -}}
-{{ $logSize := .Values.agentNode.logSize -}}
+{{ $dataSize := .Values.agent.dataSize -}}
+{{ $logSize := .Values.agent.logSize -}}
 {{ range $i := until (int .Values.global.agentNum) -}}
 ---
 apiVersion: v1
