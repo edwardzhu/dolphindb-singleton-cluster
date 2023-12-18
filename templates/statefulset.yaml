@@ -24,7 +24,7 @@ spec:
         app.kubernetes.io/name: {{ include "statefulset.name" . }}
     spec:
       restartPolicy: Always
-      serviceAccountName: {{ include "global.serviceaccount.name" . }}
+      serviceAccountName: {{ .Values.global.serviceAccount | default "default" }}
       volumes:
       - name: license
         configMap:

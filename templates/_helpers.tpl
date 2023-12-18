@@ -6,10 +6,6 @@
   {{- end -}}
 {{- end -}}
 
-{{- define "global.serviceaccount.name" -}}
-{{- printf "%s-%s" "dolphindb-sa" ( include "work.namespace" .) -}}
-{{- end -}}
-
 {{- define "global.service.type" -}}
 {{- .Values.global.serviceType | default "NodePort" -}}
 {{- end -}}

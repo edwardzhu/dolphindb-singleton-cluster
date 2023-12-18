@@ -5,6 +5,7 @@ global:
   allNamespace: false
   serviceType: NodePort
   serviceName: ""
+  serviceAccount: ""
   agentNum: 2
   datanodeRestartInterval: 30
   chunkCacheEngineMemSize: 0
