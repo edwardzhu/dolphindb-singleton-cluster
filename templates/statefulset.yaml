@@ -23,6 +23,7 @@ spec:
         dolphindb.io/component: dolphindb-singleton-cluster
         app.kubernetes.io/name: {{ include "statefulset.name" . }}
     spec:
+      {{ $numbOfVolume := ( int .Values.agent.numberOfVolume ) -}}
       restartPolicy: Always
       serviceAccountName: {{ .Values.global.serviceAccount | default "default" }}
       volumes:
@@ -74,6 +75,11 @@ spec:
       - name: agent-log-{{ $i }}
         persistentVolumeClaim:
           claimName: agent-log-{{ $i }}
+      {{ range $j := until $numbOfVolume -}}
+      - name: agent-volume-{{ $i }}-{{ $j }}
+        persistentVolumeClaim:
+          claimName: agent-volume-{{ $i }}-{{ $j }}
+      {{ end -}}
       - name: agent-data-{{ $i }}
         persistentVolumeClaim:
           claimName: agent-data-{{ $i }}
@@ -196,6 +202,10 @@ spec:
           subPath: dolphindb.lic
         - name: localtime
           mountPath: /etc/localtime
+        {{ range $j := until $numbOfVolume -}}
+        - name: agent-volume-{{ $i }}-{{ $j }}
+          mountPath: /data/ddb/server/volumes/volume{{ $j }}
+        {{ end -}}
         - name: agent-data-{{ $i }}
           mountPath: /data/ddb/server/data
         - name: agent-log-{{ $i }}

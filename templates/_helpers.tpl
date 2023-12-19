@@ -50,3 +50,12 @@
 {{- printf .Values.global.serviceType -}}
 {{- end -}}
 {{- end -}}
+
+{{- define "cluster.config.volumes" -}}
+{{- $numOfVolume := ( int .Values.agent.numberOfVolume ) -}}
+{{- $volumes := list -}}
+{{- range $i := until $numOfVolume -}}
+{{- $volumes = (printf "/data/ddb/server/volumes/volume%d" $i | append $volumes) -}}
+{{- end -}}
+{{- join "," $volumes -}}
+{{- end -}}

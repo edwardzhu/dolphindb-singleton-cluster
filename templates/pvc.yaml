@@ -47,7 +47,25 @@ spec:
       storage: {{ .Values.controller.logSize }}
 {{ $dataSize := .Values.agent.dataSize -}}
 {{ $logSize := .Values.agent.logSize -}}
+{{ $numOfVolume := .Values.agent.numberOfVolume -}}
 {{ range $i := until (int .Values.global.agentNum) -}}
+{{ range $j := until (int $numOfVolume) -}}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: agent-volume-{{ $i }}-{{ $j }}
+  namespace: {{ $ns }}
+  labels:
+    dolphindb.io/component.type: Agent
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ $agent_storageClass }}
+  resources:
+    requests:
+      storage: {{ $dataSize }}
+{{ end -}}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -62,7 +80,7 @@ spec:
   storageClassName: {{ $agent_storageClass }}
   resources:
     requests:
-      storage: {{ $dataSize }}
+      storage: {{ $logSize }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

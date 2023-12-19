@@ -26,6 +26,8 @@ data:
     dataSync=1
     lanCluster=0
     chunkCacheEngineMemSize= {{- .Values.global.chunkCacheEngineMemSize }}
+    volumeUsageThreshold=0.95
+    volumes={{ include "cluster.config.volumes" . }}
   cluster.nodes: |-
     localSite,mode
     {{ $serviceName }}:{{ .Values.controller.port }}:controller0,controller

@@ -47,6 +47,7 @@ agent:
   port: 31220
   datanodePort: 31221
   dataSize: 1Gi
+  numberOfVolume: 1
   logSize: 1Gi
   storageClass: ""
   resources:
