@@ -27,7 +27,10 @@ data:
     lanCluster=0
     chunkCacheEngineMemSize= {{- .Values.global.chunkCacheEngineMemSize }}
     volumeUsageThreshold=0.95
-    volumes={{ include "cluster.config.volumes" . }}
+    {{- $values := .Values -}}
+    {{ range $i := until (int .Values.global.agentNum) }}
+    datanode{{ $i }}.volumes={{ include "cluster.config.volumes" (dict "NodeIndex" $i "Values" $values ) }}
+    {{- end }}
     maxPartitionNumPerQuery={{- include "maxPartitionNumPerQuery" . }}
   cluster.nodes: |-
     localSite,mode

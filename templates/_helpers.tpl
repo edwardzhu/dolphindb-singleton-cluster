@@ -58,8 +58,9 @@
 {{- define "cluster.config.volumes" -}}
 {{- $numOfVolume := ( int .Values.agent.numberOfVolume ) -}}
 {{- $volumes := list -}}
+{{- $nodeIndex := .NodeIndex -}}
 {{- range $i := until $numOfVolume -}}
-{{- $volumes = (printf "/data/ddb/server/volumes/volume%d" $i | append $volumes) -}}
+{{- $volumes = (printf "/data/ddb/server/volumes/volume%d/datanode%d" $i $nodeIndex | append $volumes) -}}
 {{- end -}}
 {{- join "," $volumes -}}
 {{- end -}}
