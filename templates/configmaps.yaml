@@ -8,7 +8,7 @@ data:
   {{ $controller_workerNum := ( include "controller.workerNum" . ) -}}
   {{ $controller_maxMemSize := .Values.controller.resources.limits.memory -}}
   {{ $agentPort := .Values.agent.port -}}
-  {{ $serviceName := ( include "statefulset.name" . )}}
+  {{ $serviceName := ( include "statefulset.name" . ) -}}
   {{ $controllerPort := .Values.controller.port -}}
   controller.cfg: |-
     localSite={{ $serviceName }}:{{ $.Values.controller.port }}:controller0
@@ -28,6 +28,7 @@ data:
     chunkCacheEngineMemSize= {{- .Values.global.chunkCacheEngineMemSize }}
     volumeUsageThreshold=0.95
     volumes={{ include "cluster.config.volumes" . }}
+    maxPartitionNumPerQuery={{- include "maxPartitionNumPerQuery" . }}
   cluster.nodes: |-
     localSite,mode
     {{ $serviceName }}:{{ .Values.controller.port }}:controller0,controller

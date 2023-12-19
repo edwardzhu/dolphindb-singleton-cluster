@@ -6,6 +6,10 @@
   {{- end -}}
 {{- end -}}
 
+{{- define "maxPartitionNumPerQuery" -}}
+{{- printf "%d" ( int .Values.global.maxPartitionNumPerQuery ) -}}
+{{- end -}}
+
 {{- define "global.service.type" -}}
 {{- .Values.global.serviceType | default "NodePort" -}}
 {{- end -}}

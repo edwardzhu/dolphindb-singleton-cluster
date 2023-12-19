@@ -9,6 +9,7 @@ global:
   agentNum: 2
   datanodeRestartInterval: 30
   chunkCacheEngineMemSize: 0
+  maxPartitionNumPerQuery: 65536
   cleanerTag: v1.1.3
   exporterTag: v1.1.3
   affinity:
