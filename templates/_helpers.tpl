@@ -64,3 +64,36 @@
 {{- end -}}
 {{- join "," $volumes -}}
 {{- end -}}
+
+{{- define "agent.maxMemSize" -}}
+{{- print ( include "convertToGB" .Values.agent.resources.limits.memory ) -}}
+{{- end -}}
+
+{{- define "controller.maxMemSize" -}}
+{{- print ( include "convertToGB" .Values.controller.resources.limits.memory ) -}}
+{{- end -}}
+
+{{- define "convertToGB" -}}
+{{- $value := . -}}
+{{- $num := regexFind "[0-9]+" $value -}}
+{{- $unit := regexFind "[a-zA-Z]+" $value -}}
+{{- $bytes := 0 -}}
+{{- if eq $unit "K" -}}
+{{- $bytes = mul (atoi $num) 0.000000931323 -}}
+{{- else if eq $unit "Ki" -}}
+{{- $bytes = mul (atoi $num) 0.000000953674752 -}}
+{{- else if eq $unit "M" -}}
+{{- $bytes = mul (atoi $num) 0.000931323 -}}
+{{- else if eq $unit "Mi" -}}
+{{- $bytes = mul (atoi $num) 0.0009765625 -}}
+{{- else if eq $unit "G" -}}
+{{- $bytes = mul (atoi $num) 0.9765625 -}}
+{{- else if eq $unit "Gi" -}}
+{{- $bytes = mul (atoi $num) 1 -}}
+{{- else if eq $unit "T" -}}
+{{- $bytes = mul (atoi $num) 931.323 -}}
+{{- else if eq $unit "Ti" -}}
+{{- $bytes = mul (atoi $num) 1024 -}}
+{{- end -}}
+{{- $bytes | int -}}
+{{- end -}}

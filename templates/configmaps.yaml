@@ -6,7 +6,7 @@ metadata:
   name: controller-config
 data:
   {{ $controller_workerNum := ( include "controller.workerNum" . ) -}}
-  {{ $controller_maxMemSize := .Values.controller.resources.limits.memory -}}
+  {{ $controller_maxMemSize := ( include "controller.maxMemSize" . ) -}}
   {{ $agentPort := .Values.agent.port -}}
   {{ $serviceName := ( include "statefulset.name" . ) -}}
   {{ $controllerPort := .Values.controller.port -}}
@@ -49,7 +49,7 @@ metadata:
   name: agent-config
 data:
   {{ $agentCpu := .Values.agent.resources.limits.cpu -}}
-  {{ $agentMem := .Values.agent.resources.limits.memory -}}
+  {{ $agentMem := ( include "agent.maxMemSize" . ) -}}
   {{ range $i := until (int .Values.global.agentNum ) -}}
   agent{{ $i }}.cfg: |-
     mode=agent
