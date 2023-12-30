@@ -65,28 +65,28 @@ spec:
       - name: controller-core
         persistentVolumeClaim:
           claimName: controller-core
-      {{ range $i := until (int .Values.global.agentNum) -}}
-      - name: agent{{ $i }}-cfg
+      - name: agent-cfg
         configMap:
           name: agent-config
           items:
-            - key: agent{{ $i }}.cfg
-              path: agent{{ $i }}.cfg
-      - name: agent-log-{{ $i }}
+            - key: agent.cfg
+              path: agent.cfg
+      - name: agent-log
         persistentVolumeClaim:
-          claimName: agent-log-{{ $i }}
+          claimName: agent-log
+      {{ range $i := until (int .Values.global.agentNum) -}}
       {{ range $j := until $numbOfVolume -}}
       - name: agent-volume-{{ $i }}-{{ $j }}
         persistentVolumeClaim:
           claimName: agent-volume-{{ $i }}-{{ $j }}
       {{ end -}}
-      - name: agent-data-{{ $i }}
-        persistentVolumeClaim:
-          claimName: agent-data-{{ $i }}
-      - name: agent-core-{{ $i }}
-        persistentVolumeClaim:
-          claimName: agent-core-{{ $i }}
       {{ end -}}
+      - name: agent-data
+        persistentVolumeClaim:
+          claimName: agent-data
+      - name: agent-core
+        persistentVolumeClaim:
+          claimName: agent-core
       containers:
       {{ $imageTag := ( include "imageTag" . ) -}}
       {{ $cleanerTag := .Values.global.cleanerTag -}}
@@ -175,8 +175,7 @@ spec:
       {{ $datanodePort := .Values.agent.datanodePort -}}
       {{ $logLimit := .Values.controller.logLimit -}}
       {{ $resource_limit := toYaml .Values.agent.resources | nindent 10 -}}
-      {{ range $i := until (int .Values.global.agentNum) -}}
-      - name: ddb-agent-{{ $i }}
+      - name: ddb-agent
         image: {{ $imageTag }}
         command:
         - /bin/sh
@@ -191,31 +190,35 @@ spec:
         {{- $resource_limit }}
         ports:
         - name: agent
-          containerPort: {{ add $agentPort ( mul $i 10 ) }}
+          containerPort: {{ $agentPort }}
           protocol: TCP
-        - name: datanode
+        {{ range $i := until (int .Values.global.agentNum) -}}
+        - name: datanode-{{ $i }}
           containerPort: {{ add $datanodePort ( mul $i 10 ) }}
           protocol: TCP
+        {{ end -}}
         volumeMounts:
         - name: license
           mountPath: /data/ddb/server/dolphindb.lic
           subPath: dolphindb.lic
         - name: localtime
           mountPath: /etc/localtime
+        {{ range $i := until (int .Values.global.agentNum) -}}
         {{ range $j := until $numbOfVolume -}}
         - name: agent-volume-{{ $i }}-{{ $j }}
           mountPath: /data/ddb/server/volumes/volume{{ $j }}
         {{ end -}}
-        - name: agent-data-{{ $i }}
+        {{ end -}}
+        - name: agent-data
           mountPath: /data/ddb/server/data
-        - name: agent-log-{{ $i }}
+        - name: agent-log
           mountPath: /data/ddb/server/log
-        - name: agent{{ $i }}-cfg
-          subPath: agent{{ $i }}.cfg
+        - name: agent-cfg
+          subPath: agent.cfg
           mountPath: /data/ddb/server/config/agent.cfg
-        - name: agent-core-{{ $i }}
+        - name: agent-core
           mountPath: /data/ddb/core
-      - name: agent-cleaner-{{ $i }}
+      - name: agent-cleaner
         image: dolphindb/dolphindb-cleaner:{{ $cleanerTag }}
         env:
         - name: LogSize
@@ -239,12 +242,11 @@ spec:
               apiVersion: v1
               fieldPath: metadata.namespace
         volumeMounts:
-        - name: agent-core-{{ $i }}
+        - name: agent-core
           mountPath: /data/ddb/core
-        - name: agent-log-{{ $i }}
+        - name: agent-log
           mountPath: /data/ddb/server/log
         - name: localtime
           mountPath: /etc/localtime
-      {{ end -}}
       affinity:
       {{- toYaml .Values.global.affinity | nindent 8 }}

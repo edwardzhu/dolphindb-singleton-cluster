@@ -66,49 +66,49 @@ spec:
     requests:
       storage: {{ $dataSize }}
 {{ end -}}
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: agent-data-{{ $i }}
-  namespace: {{ $ns }}
-  labels:
-    dolphindb.io/component.type: Agent
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: {{ $agent_storageClass }}
-  resources:
-    requests:
-      storage: {{ $logSize }}
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: agent-log-{{ $i }}
-  namespace: {{ $ns }}
-  labels:
-    dolphindb.io/component.type: Agent
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: {{ $agent_storageClass }}
-  resources:
-    requests:
-      storage: {{ $logSize }}
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: agent-core-{{ $i }}
-  namespace: {{ $ns }}
-  labels:
-    dolphindb.io/component.type: Agent
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: {{ $agent_storageClass }}
-  resources:
-    requests:
-      storage: {{ $logSize }}
 {{ end -}}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: agent-data
+  namespace: {{ $ns }}
+  labels:
+    dolphindb.io/component.type: Agent
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ $agent_storageClass }}
+  resources:
+    requests:
+      storage: {{ $logSize }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: agent-log
+  namespace: {{ $ns }}
+  labels:
+    dolphindb.io/component.type: Agent
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ $agent_storageClass }}
+  resources:
+    requests:
+      storage: {{ $logSize }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: agent-core
+  namespace: {{ $ns }}
+  labels:
+    dolphindb.io/component.type: Agent
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ $agent_storageClass }}
+  resources:
+    requests:
+      storage: {{ $logSize }}

@@ -20,7 +20,7 @@ spec:
   - name: datanode-{{ $i }}
     protocol: TCP
     port: {{ add $datanodePort ( mul $i 10 ) }}
-  - name: agent-{{ $i }}
-    protocol: TCP
-    port: {{ add $agentPort ( mul $i 10 ) }}
   {{- end }}
+  - name: agent
+    protocol: TCP
+    port: {{ $agentPort }}

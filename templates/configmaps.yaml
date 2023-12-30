@@ -36,8 +36,8 @@ data:
     localSite,mode
     {{ $serviceName }}:{{ .Values.controller.port }}:controller0,controller
     {{- $datanodePort := .Values.agent.datanodePort -}}
+    {{ $serviceName }}:{{ $agentPort }}:agent0,agent
     {{ range $i := until (int .Values.global.agentNum) }}
-    {{ $serviceName }}:{{ add $agentPort ( mul $i 10 ) }}:agent{{ $i }},agent
     {{ $serviceName }}:{{ add $datanodePort ( mul $i 10 ) }}:datanode{{ $i }},datanode
     {{- end }}
 ---
@@ -50,10 +50,9 @@ metadata:
 data:
   {{ $agentCpu := .Values.agent.resources.limits.cpu -}}
   {{ $agentMem := ( include "agent.maxMemSize" . ) -}}
-  {{ range $i := until (int .Values.global.agentNum ) -}}
-  agent{{ $i }}.cfg: |-
+  agent.cfg: |-
     mode=agent
-    localSite={{ $serviceName }}:{{ add $agentPort ( mul $i 10 ) }}:agent{{ $i }}
+    localSite={{ $serviceName }}:{{ $agentPort }}:agent0
     controllerSite={{ $serviceName }}:{{ $controllerPort }}:controller0
     maxMemSize={{ $agentMem }}
     webWorkerNum={{ $agentCpu }}
@@ -61,4 +60,3 @@ data:
     lanCluster=0
     perfMonitoring=1
     dfsMetaDir=/data/ddb/server/log
-  {{ end }}
