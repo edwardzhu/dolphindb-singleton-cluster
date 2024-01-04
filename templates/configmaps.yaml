@@ -12,17 +12,31 @@ data:
   {{ $controllerPort := .Values.controller.port -}}
   controller.cfg: |-
     localSite={{ $serviceName }}:{{ $.Values.controller.port }}:controller0
-    webWorkerNum={{ $controller_workerNum }}
     workerNum={{ $controller_workerNum }}
     maxMemSize={{ $controller_maxMemSize }}
+    dfsReplicationFactor=1
+    dfsReplicaReliabilityLevel=2
+    maxConnections=512
     dataSync=1
     lanCluster=0
     perfMonitoring=1
     dfsMetaDir=/data/ddb/server/log
     datanodeRestartInterval= {{- .Values.global.datanodeRestartInterval }}
+    maxFileHandles=102400
   cluster.cfg: |-
     workerNum={{ $controller_workerNum }}
     maxMemSize={{ $controller_maxMemSize }}
+    localExecutors={{ sub $controller_workerNum 1 }}
+    maxBatchJobWorker={{ $controller_workerNum }}
+    OLAPCacheEngineSize=2
+    TSDBCacheEngineSize=1
+    newValuePartitionPolicy=add
+    maxPubConnections=64
+    subExecutors={{ $controller_workerNum }}
+    enableChunkGranularityConfig=true
+    maxFileHandles=102400
+    subThrottle=1
+    persistenceWorkerNum=1
     dataSync=1
     lanCluster=0
     chunkCacheEngineMemSize= {{- .Values.global.chunkCacheEngineMemSize }}
