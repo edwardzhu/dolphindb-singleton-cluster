@@ -10,12 +10,13 @@ data:
   {{ $agentPort := .Values.agent.port -}}
   {{ $serviceName := ( include "statefulset.name" . ) -}}
   {{ $controllerPort := .Values.controller.port -}}
+  {{ $dfsReplicaReliabilityLevel := .Values.global.reliabilityLevel -}}
   controller.cfg: |-
     localSite={{ $serviceName }}:{{ $.Values.controller.port }}:controller0
     workerNum={{ $controller_workerNum }}
     maxMemSize={{ $controller_maxMemSize }}
     dfsReplicationFactor=1
-    dfsReplicaReliabilityLevel=2
+    dfsReplicaReliabilityLevel={{ $dfsReplicaReliabilityLevel }}
     maxConnections=512
     dataSync=1
     lanCluster=0
