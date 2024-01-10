@@ -15,7 +15,7 @@ data:
     localSite={{ $serviceName }}:{{ $.Values.controller.port }}:controller0
     workerNum={{ $controller_workerNum }}
     maxMemSize={{ $controller_maxMemSize }}
-    dfsReplicationFactor=1
+    dfsReplicationFactor={{ .Values.global.agentNum }}
     dfsReplicaReliabilityLevel={{ $dfsReplicaReliabilityLevel }}
     maxConnections=512
     dataSync=1
