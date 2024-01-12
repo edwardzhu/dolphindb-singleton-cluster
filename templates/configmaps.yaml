@@ -21,7 +21,7 @@ data:
     dataSync=1
     lanCluster=0
     perfMonitoring=1
-    dfsMetaDir=/data/ddb/server/log
+    dfsMetaDir= /data/ddb/server/data
     datanodeRestartInterval= {{- .Values.global.datanodeRestartInterval }}
     maxFileHandles=102400
   cluster.cfg: |-
