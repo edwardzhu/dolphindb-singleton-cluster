@@ -45,8 +45,9 @@ spec:
   resources:
     requests:
       storage: {{ .Values.controller.logSize }}
-{{ $dataSize := .Values.agent.dataSize -}}
+{{ $datanodeSize := .Values.agent.datanodeSize -}}
 {{ $logSize := .Values.agent.logSize -}}
+{{ $dataSize := .Values.agent.dataSize -}}
 {{ $numOfVolume := .Values.agent.numberOfVolume -}}
 {{ range $i := until (int .Values.global.agentNum) -}}
 {{ range $j := until (int $numOfVolume) -}}
@@ -64,7 +65,7 @@ spec:
   storageClassName: {{ $agent_storageClass }}
   resources:
     requests:
-      storage: {{ $dataSize }}
+      storage: {{ $datanodeSize }}
 {{ end -}}
 {{ end -}}
 ---
@@ -81,7 +82,7 @@ spec:
   storageClassName: {{ $agent_storageClass }}
   resources:
     requests:
-      storage: {{ $logSize }}
+      storage: {{ $dataSize }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

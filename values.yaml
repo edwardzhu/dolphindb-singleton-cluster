@@ -48,6 +48,7 @@ agent:
   replica: 0
   port: 31220
   datanodePort: 31221
+  datanodeSize: 1Gi
   dataSize: 1Gi
   numberOfVolume: 1
   logSize: 1Gi
