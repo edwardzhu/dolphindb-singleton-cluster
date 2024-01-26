@@ -19,6 +19,21 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
+  name: controller-plugin
+  namespace: {{ $ns }}
+  labels:
+    dolphindb.io/component.type: Controller
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ $controll_storageClass }}
+  resources:
+    requests:
+      storage: {{ .Values.controller.dataSize }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
   name: controller-data
   namespace: {{ $ns }}
   labels:

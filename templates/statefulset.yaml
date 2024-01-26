@@ -62,6 +62,9 @@ spec:
       - name: controller-data
         persistentVolumeClaim:
           claimName: controller-data
+      - name: controller-plugin
+        persistentVolumeClaim:
+          claimName: controller-plugin
       - name: controller-core
         persistentVolumeClaim:
           claimName: controller-core
@@ -87,9 +90,24 @@ spec:
       - name: agent-core
         persistentVolumeClaim:
           claimName: agent-core
-      containers:
       {{ $imageTag := ( include "imageTag" . ) -}}
       {{ $cleanerTag := .Values.global.cleanerTag -}}
+      initContainers:
+      - name: prepare-plugins
+        image: {{ $imageTag }}
+        command:
+        - /bin/sh
+        - '-c'
+        - '--'
+        args:
+        - >-
+          cd /data/ddb/server;cp -rf plugins/* controller-plugins;cp -rf plugins/* agent-plugins
+        volumeMounts:
+        - name: controller-plugin
+          mountPath: /data/ddb/server/controller-plugins
+        - name: agent-plugin
+          mountPath: /data/ddb/server/agent-plugins
+      containers:
       - name: ddb-controller
         image: {{ $imageTag }}
         command:
@@ -125,6 +143,8 @@ spec:
           mountPath: /data/ddb/server/clusterDemo/config/cluster.cfg
         - name: controller-data
           mountPath: /data/ddb/server/data
+        - name: controller-plugin
+          mountPath: /data/ddb/server/plugins
         - name: controller-core
           mountPath: /data/ddb/core
         - name: localtime

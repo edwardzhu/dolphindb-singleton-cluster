@@ -24,6 +24,9 @@ data:
     dfsMetaDir= /data/ddb/server/data
     datanodeRestartInterval= {{- .Values.global.datanodeRestartInterval }}
     maxFileHandles=102400
+    {{- if .Values.global.preloadModules }}
+    preloadModules={{ .Values.global.preloadModules }}
+    {{- end }}
   cluster.cfg: |-
     workerNum={{ $controller_workerNum }}
     maxMemSize={{ $controller_maxMemSize }}
@@ -47,6 +50,9 @@ data:
     datanode{{ $i }}.volumes={{ include "cluster.config.volumes" (dict "NodeIndex" $i "Values" $values ) }}
     {{- end }}
     maxPartitionNumPerQuery={{- include "maxPartitionNumPerQuery" . }}
+    {{- if .Values.global.preloadModules }}
+    preloadModules={{ .Values.global.preloadModules }}
+    {{- end }}
   cluster.nodes: |-
     localSite,mode
     {{ $serviceName }}:{{ .Values.controller.port }}:controller0,controller

@@ -13,6 +13,7 @@ global:
   reliabilityLevel: 0
   cleanerTag: v1.1.3
   exporterTag: v1.1.3
+  preloadModules: ""
   affinity:
     nodeAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
