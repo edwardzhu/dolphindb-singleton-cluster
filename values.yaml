@@ -35,6 +35,7 @@ controller:
   port: 31210
   logSize: 1Gi
   dataSize: 1Gi
+  persistentSize: 10Gi
   logLimit: 0.9
   storageClass: ""
   resources:

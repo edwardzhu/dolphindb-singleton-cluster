@@ -48,6 +48,7 @@ data:
     {{- $values := .Values -}}
     {{ range $i := until (int .Values.global.agentNum) }}
     datanode{{ $i }}.volumes={{ include "cluster.config.volumes" (dict "NodeIndex" $i "Values" $values ) }}
+    datanode{{ $i }}.persistenceDir=/data/ddb/server/persistence{{ $i }}
     {{- end }}
     maxPartitionNumPerQuery={{- include "maxPartitionNumPerQuery" . }}
     {{- if .Values.global.preloadModules }}

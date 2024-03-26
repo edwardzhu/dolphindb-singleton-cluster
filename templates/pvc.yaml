@@ -82,6 +82,21 @@ spec:
     requests:
       storage: {{ $datanodeSize }}
 {{ end -}}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: persistent-volume-{{ $i }}
+  namespace: {{ $ns }}
+  labels:
+    dolphindb.io/component.type: Agent
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ $agent_storageClass }}
+  resources:
+    requests:
+      storage: {{ .Values.controller.persistentSize }}
 {{ end -}}
 ---
 apiVersion: v1

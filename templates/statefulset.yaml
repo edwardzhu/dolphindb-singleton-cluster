@@ -83,6 +83,9 @@ spec:
         persistentVolumeClaim:
           claimName: agent-volume-{{ $i }}-{{ $j }}
       {{ end -}}
+      - name: persistent-volume-{{ $i }}
+        persistentVolumeClaim:
+          claimName: persistent-volume-{{ $i }}
       {{ end -}}
       - name: agent-data
         persistentVolumeClaim:
@@ -228,6 +231,8 @@ spec:
         - name: agent-volume-{{ $i }}-{{ $j }}
           mountPath: /data/ddb/server/volumes/volume{{ $j }}
         {{ end -}}
+        - name: persistent-volume-{{ $i }}
+          mountPath: /data/ddb/server/persistence{{ $i }}
         {{ end -}}
         - name: agent-data
           mountPath: /data/ddb/server/data
